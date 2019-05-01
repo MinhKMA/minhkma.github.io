@@ -8,18 +8,18 @@
 <meta name="generator" content="Hugo 0.49.2 with theme Tranquilpeak 0.4.3-SNAPSHOT">
 <meta name="author" content="Minh Nguyen Van">
 <meta name="keywords" content="">
-<meta name="description" content="DNS anycast Hi các bạn, vẫn là mình, mình vẫn là MinhKMA. Trong tiết trời độc lập 30&frasl;04 các bạn đi xuống biển, lên rừng thì mình vẫn đang ngồi trong phòng ngắm những cơn mưa tầm tã. Quay lại vấn đề chính, Phần DNS vẫn là một trong nhưng phần mình rất thích vọc vạch về nó. Mục đích của bài LAB là tạo ra một mô hình DNS anycast sử dụng Docker.">
+<meta name="description" content="Hi các bạn, vẫn là mình, mình vẫn là MinhKMA. Trong tiết trời độc lập 30&frasl;04 các bạn đi xuống biển, lên rừng thì mình vẫn đang ngồi trong phòng ngắm những cơn mưa tầm tã. Quay lại vấn đề chính, Phần DNS vẫn là một trong nhưng phần mình rất thích vọc vạch về nó. Mục đích của bài LAB là tạo ra một mô hình DNS anycast sử dụng Docker.">
 
 
-<meta property="og:description" content="DNS anycast Hi các bạn, vẫn là mình, mình vẫn là MinhKMA. Trong tiết trời độc lập 30&frasl;04 các bạn đi xuống biển, lên rừng thì mình vẫn đang ngồi trong phòng ngắm những cơn mưa tầm tã. Quay lại vấn đề chính, Phần DNS vẫn là một trong nhưng phần mình rất thích vọc vạch về nó. Mục đích của bài LAB là tạo ra một mô hình DNS anycast sử dụng Docker.">
+<meta property="og:description" content="Hi các bạn, vẫn là mình, mình vẫn là MinhKMA. Trong tiết trời độc lập 30&frasl;04 các bạn đi xuống biển, lên rừng thì mình vẫn đang ngồi trong phòng ngắm những cơn mưa tầm tã. Quay lại vấn đề chính, Phần DNS vẫn là một trong nhưng phần mình rất thích vọc vạch về nó. Mục đích của bài LAB là tạo ra một mô hình DNS anycast sử dụng Docker.">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Dns anycast">
 <meta name="twitter:title" content="Dns anycast">
 <meta property="og:url" content="https://minhkma.github.io/2019/05/dns-anycast/">
 <meta property="twitter:url" content="https://minhkma.github.io/2019/05/dns-anycast/">
 <meta property="og:site_name" content="Minh Nguyen Van">
-<meta property="og:description" content="DNS anycast Hi các bạn, vẫn là mình, mình vẫn là MinhKMA. Trong tiết trời độc lập 30&frasl;04 các bạn đi xuống biển, lên rừng thì mình vẫn đang ngồi trong phòng ngắm những cơn mưa tầm tã. Quay lại vấn đề chính, Phần DNS vẫn là một trong nhưng phần mình rất thích vọc vạch về nó. Mục đích của bài LAB là tạo ra một mô hình DNS anycast sử dụng Docker.">
-<meta name="twitter:description" content="DNS anycast Hi các bạn, vẫn là mình, mình vẫn là MinhKMA. Trong tiết trời độc lập 30&frasl;04 các bạn đi xuống biển, lên rừng thì mình vẫn đang ngồi trong phòng ngắm những cơn mưa tầm tã. Quay lại vấn đề chính, Phần DNS vẫn là một trong nhưng phần mình rất thích vọc vạch về nó. Mục đích của bài LAB là tạo ra một mô hình DNS anycast sử dụng Docker.">
+<meta property="og:description" content="Hi các bạn, vẫn là mình, mình vẫn là MinhKMA. Trong tiết trời độc lập 30&frasl;04 các bạn đi xuống biển, lên rừng thì mình vẫn đang ngồi trong phòng ngắm những cơn mưa tầm tã. Quay lại vấn đề chính, Phần DNS vẫn là một trong nhưng phần mình rất thích vọc vạch về nó. Mục đích của bài LAB là tạo ra một mô hình DNS anycast sử dụng Docker.">
+<meta name="twitter:description" content="Hi các bạn, vẫn là mình, mình vẫn là MinhKMA. Trong tiết trời độc lập 30&frasl;04 các bạn đi xuống biển, lên rừng thì mình vẫn đang ngồi trong phòng ngắm những cơn mưa tầm tã. Quay lại vấn đề chính, Phần DNS vẫn là một trong nhưng phần mình rất thích vọc vạch về nó. Mục đích của bài LAB là tạo ra một mô hình DNS anycast sử dụng Docker.">
 <meta property="og:locale" content="en-us">
 
   
@@ -253,8 +253,6 @@
           <div class="post-content markdown" itemprop="articleBody">
             <div class="main-content-wrap">
               
-
-<h1 id="dns-anycast">DNS anycast</h1>
 
 <p>Hi các bạn, vẫn là mình, mình vẫn là MinhKMA. Trong tiết trời độc lập <sup>30</sup>&frasl;<sub>04</sub> các bạn đi xuống biển, lên rừng thì mình vẫn đang ngồi trong phòng ngắm những cơn mưa tầm tã. Quay lại vấn đề chính, Phần DNS vẫn là một trong nhưng phần mình rất thích vọc vạch về nó. Mục đích của bài LAB là tạo ra một mô hình DNS anycast sử dụng Docker.</p>
 
@@ -675,7 +673,7 @@ ns1.minhkma.local.  86400   IN  A   10.1.3.10
                   May 5, 2019
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">DNS anycast Hi các bạn, vẫn là mình, mình vẫn là MinhKMA. Trong tiết trời độc lập 30&frasl;04 các bạn đi xuống biển, lên rừng thì mình vẫn đang ngồi trong phòng ngắm những cơn mưa tầm tã. Quay lại vấn đề chính, Phần DNS vẫn là một trong nhưng phần mình rất thích vọc vạch về nó. Mục đích của bài LAB là tạo ra một mô hình DNS anycast sử dụng Docker.</div>
+              <div class="media-content hide-xs font-merryweather">Hi các bạn, vẫn là mình, mình vẫn là MinhKMA. Trong tiết trời độc lập 30&frasl;04 các bạn đi xuống biển, lên rừng thì mình vẫn đang ngồi trong phòng ngắm những cơn mưa tầm tã. Quay lại vấn đề chính, Phần DNS vẫn là một trong nhưng phần mình rất thích vọc vạch về nó. Mục đích của bài LAB là tạo ra một mô hình DNS anycast sử dụng Docker.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
