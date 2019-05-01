@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Hugo 0.49.2 with theme Tranquilpeak 0.4.3-SNAPSHOT">
+<meta name="author" content="Minh Nguyen Van">
+<meta name="keywords" content="">
+<meta name="description" content="Chào các bạn, vẫn là tôi - MinhKMA. Tôi đã chạy docker được năm rồi nhưng mới chỉ dừng lại ở docker-compose. Lần này quay lại với nó với mục đích tiến xa hơn với công nghệ container này.
+Trong phần này chúng ta sẽ xem xét các Control Groups (cgroups), cung cấp một cơ chế để dễ dàng quản lý và giám sát tài nguyên hệ thống, bằng cách phân vùng những thứ như cpu time, system memory, disk và network bandwidth thành các nhóm, sau đó phân công nhiệm vụ cho các nhóm đó .">
+
+
+<meta property="og:description" content="Chào các bạn, vẫn là tôi - MinhKMA. Tôi đã chạy docker được năm rồi nhưng mới chỉ dừng lại ở docker-compose. Lần này quay lại với nó với mục đích tiến xa hơn với công nghệ container này.
+Trong phần này chúng ta sẽ xem xét các Control Groups (cgroups), cung cấp một cơ chế để dễ dàng quản lý và giám sát tài nguyên hệ thống, bằng cách phân vùng những thứ như cpu time, system memory, disk và network bandwidth thành các nhóm, sau đó phân công nhiệm vụ cho các nhóm đó .">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Cgroup">
+<meta name="twitter:title" content="Cgroup">
+<meta property="og:url" content="https://minhkma.github.io/2019/01/cgroup/">
+<meta property="twitter:url" content="https://minhkma.github.io/2019/01/cgroup/">
+<meta property="og:site_name" content="Minh Nguyen Van">
+<meta property="og:description" content="Chào các bạn, vẫn là tôi - MinhKMA. Tôi đã chạy docker được năm rồi nhưng mới chỉ dừng lại ở docker-compose. Lần này quay lại với nó với mục đích tiến xa hơn với công nghệ container này.
+Trong phần này chúng ta sẽ xem xét các Control Groups (cgroups), cung cấp một cơ chế để dễ dàng quản lý và giám sát tài nguyên hệ thống, bằng cách phân vùng những thứ như cpu time, system memory, disk và network bandwidth thành các nhóm, sau đó phân công nhiệm vụ cho các nhóm đó .">
+<meta name="twitter:description" content="Chào các bạn, vẫn là tôi - MinhKMA. Tôi đã chạy docker được năm rồi nhưng mới chỉ dừng lại ở docker-compose. Lần này quay lại với nó với mục đích tiến xa hơn với công nghệ container này.
+Trong phần này chúng ta sẽ xem xét các Control Groups (cgroups), cung cấp một cơ chế để dễ dàng quản lý và giám sát tài nguyên hệ thống, bằng cách phân vùng những thứ như cpu time, system memory, disk và network bandwidth thành các nhóm, sau đó phân công nhiệm vụ cho các nhóm đó .">
+<meta property="og:locale" content="en-us">
+
+  
+    <meta property="article:published_time" content="2019-01-06T11:07:09">
+  
+  
+    <meta property="article:modified_time" content="2019-01-06T11:07:09">
+  
+  
+  
+    
+      <meta property="article:section" content="Docker">
+    
+  
+  
+    
+      <meta property="article:tag" content="Cgroup">
+    
+      <meta property="article:tag" content="Docker">
+    
+  
+
+
+<meta name="twitter:card" content="summary">
+
+  <meta name="twitter:site" content="@minhkma">
+
+
+  <meta name="twitter:creator" content="@minhkma">
+
+
+
+
+
+
+  <meta property="og:image" content="https://minhkma.github.io/img/docker.png">
+  <meta property="twitter:image" content="https://minhkma.github.io/img/docker.png">
+
+
+
+
+
+  <meta property="og:image" content="https://www.gravatar.com/avatar/5b04fcd56c9418190d3dc84726d479ba?s=640">
+  <meta property="twitter:image" content="https://www.gravatar.com/avatar/5b04fcd56c9418190d3dc84726d479ba?s=640">
+
+
+    <title>Cgroup</title>
+
+    <link rel="icon" href="https://minhkma.github.io/favicon.png">
+    
+
+    
+
+    <link rel="canonical" href="https://minhkma.github.io/2019/01/cgroup/">
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/jquery.fancybox.min.css" integrity="sha256-vuXZ9LGmmwtjqFX1F+EKin1ThZMub58gKULUyf0qECk=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/helpers/jquery.fancybox-thumbs.min.css" integrity="sha256-SEa4XYAHihTcEP1f5gARTB2K26Uk8PsndQYHQC1f4jU=" crossorigin="anonymous" />
+    
+    
+    <link rel="stylesheet" href="https://minhkma.github.io/css/style-nnm2spxvve8onlujjlegkkytaehyadd4ksxc1hyzzq9a2wvtrgbljqyulomn.min.css" />
+    
+    
+
+    
+      
+    
+    
+  </head>
+
+  <body>
+    <div id="blog">
+      <header id="header" data-behavior="5">
+  <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+  <div class="header-title">
+    <a class="header-title-link" href="https://minhkma.github.io/">Minh Nguyen Van</a>
+  </div>
+  
+    
+      <a class="header-right-picture "
+         href="https://minhkma.github.io/#about">
+    
+    
+    
+      
+        <img class="header-picture" src="https://www.gravatar.com/avatar/5b04fcd56c9418190d3dc84726d479ba?s=90" alt="Author&#39;s picture" />
+      
+    
+    </a>
+  
+</header>
+
+      <nav id="sidebar" data-behavior="5">
+  <div class="sidebar-container">
+    
+      <div class="sidebar-profile">
+        <a href="https://minhkma.github.io/#about">
+          <img class="sidebar-profile-picture" src="https://www.gravatar.com/avatar/5b04fcd56c9418190d3dc84726d479ba?s=110" alt="Author&#39;s picture" />
+        </a>
+        <h4 class="sidebar-profile-name">Minh Nguyen Van</h4>
+        
+          <h5 class="sidebar-profile-bio">Không có một sự kiện nào trên đời là ngẫu nhiên, những thứ đang cho là ngẫu nhiên chỉ là những sự kiện ta chưa tìm ra được mô hình để biểu diễn quy luật của chúng</h5>
+        
+      </div>
+    
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://minhkma.github.io/">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+      
+      <span class="sidebar-button-desc">Home</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://minhkma.github.io/categories">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+      
+      <span class="sidebar-button-desc">Categories</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://minhkma.github.io/tags">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+      
+      <span class="sidebar-button-desc">Tags</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://minhkma.github.io/archives">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+      
+      <span class="sidebar-button-desc">Archives</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://minhkma.github.io/2016/10/about-me/">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+      
+      <span class="sidebar-button-desc">About</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.facebook.com/MinhKMA" target="_blank" rel="noopener">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-facebook"></i>
+      
+      <span class="sidebar-button-desc">Facebook</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://github.com/minhkma" target="_blank" rel="noopener">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+      
+      <span class="sidebar-button-desc">GitHub</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+
+    </ul>
+  </div>
+</nav>
+
+      
+
+      <div id="main" data-behavior="5"
+        class="
+               hasCoverMetaIn
+               ">
+        <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+          
+          
+            <div class="post-header main-content-wrap text-left">
+  
+    <h1 class="post-title" itemprop="headline">
+      Cgroup
+    </h1>
+  
+  
+  <div class="postShorten-meta post-meta">
+    
+      <time itemprop="datePublished" datetime="2019-01-06T11:07:09Z">
+        
+  January 6, 2019
+
+      </time>
+    
+    
+  
+  
+    <span>in</span>
+    
+      <a class="category-link" href="https://minhkma.github.io/categories/docker">Docker</a>
+    
+  
+
+  </div>
+
+</div>
+          
+          <div class="post-content markdown" itemprop="articleBody">
+            <div class="main-content-wrap">
+              
+
+<p>Chào các bạn, vẫn là tôi - MinhKMA. Tôi đã chạy docker được năm rồi nhưng mới chỉ dừng lại ở docker-compose. Lần này quay lại với nó với mục đích tiến xa hơn với công nghệ container này.</p>
+
+<p>Trong phần này chúng ta sẽ xem xét các Control Groups (cgroups), cung cấp một cơ chế để dễ dàng quản lý và giám sát tài nguyên hệ thống, bằng cách phân vùng những thứ như cpu time, system memory, disk và network bandwidth thành các nhóm, sau đó phân công nhiệm vụ cho các nhóm đó .</p>
+
+<p>Hãy để tôi thử và giải thích Control Groups là gì và chúng cho phép bạn làm gì. Chúng ta hãy bắt đầu bằng một ví dụ:</p>
+
+<pre><code>Bạn có một resources intensive application trên máy chủ
+</code></pre>
+
+<p>Trong việc chia sẻ tài nguyên giữa tất cả các tiến trình trên một hệ thống, Linux is great. Nhưng với trường hợp bạn muốn <strong>To allocate or guarantee, a greater amount to a specific application, or a set of applications</strong> thì Cgroup sẽ giúp ích bạn. (Phần này xin phép mình không dịch nó :D)</p>
+
+<p>Ví dụ: Giả sử  Tôi muốn gán hoặc cô lập tài nguyên cho ứng dụng, hãy tạo hai nhóm:</p>
+
+<ul>
+<li>Nhóm #1 sẽ dành cho hệ điều hành</li>
+<li>Nhóm #2 sẽ dành cho ứng dụng của tôi</li>
+</ul>
+
+<p>Sau đó chúng tôi có thể define thông tin về tài nguyên cho từng nhóm.</p>
+
+<p><img src="https://i.imgur.com/cAMm6QT.gif"></p>
+
+<p>Hãy tập trung vào Nhóm #2 một lát. Tôi muốn quản lý cpu, memory, disk và network bandwidth cho ứng dụng nên tôi đã tạo ra một nhóm và giới hạn tài nguyên cho nhóm vừa tạo. Vì thế nhưng ứng dụng thuộc nhóm này không thể vượt quá tài nguyên mà tôi đã gán cho nhóm trước đó.</p>
+
+<p><img src="https://i.imgur.com/v6T42tT.gif"></p>
+
+<p>Như vậy bạn có thể thấy, các ứng dụng trong nhóm #2 không thể vượt quá được:</p>
+
+<ul>
+<li>80% CPU</li>
+<li>10GB memory</li>
+<li>80% of disk reads and writes</li>
+<li>80% of our network bandwidth</li>
+</ul>
+
+<p>Khi nhóm được tạo ra, bạn chỉ cần gán PIDs của các ứng dụng mình muốn và các ứng dụng sẽ tự động điều chỉ mà không cần phải khởi động lại hệ thống.</p>
+
+<p>Thay vào đó chúng ta có hệ điều hành và có thể có nhiều nhóm:</p>
+
+<p><img src='https://i.imgur.com/RWlYlg5.png'></p>
+
+<h4 id="nào-để-dễ-hình-dung-hơn-tôi-sẽ-làm-một-ví-dụ-cụ-thể">Nào, để dễ hình dung hơn tôi sẽ làm một ví dụ cụ thể:</h4>
+
+<ul>
+<li><p>Cài đặt libcgroup</p>
+
+<pre><code>yum install libcgroup libcgroup-tools -y
+systemctl start cgconfig
+systemctl enable cgconfig
+</code></pre>
+
+<p><img src="https://i.imgur.com/PokhIt1.png"></p></li>
+
+<li><p>Tạo demo1 trong blkio control group</p>
+
+<pre><code>[root@pihole ~]# mkdir /sys/fs/cgroup/blkio/demo1
+[root@pihole demo1]# cd /sys/fs/cgroup/blkio/demo1
+[root@pihole demo1]# lscgroup
+[root@pihole demo1]# lscgroup | grep demo1
+blkio:/demo1
+[root@pihole demo1]# 
+</code></pre></li>
+
+<li><p>Thực hiện việc đọc ghi dữ liệu thông thường</p>
+
+<pre><code>[root@pihole ~]# dd if=/dev/zero of=file-abc bs=1M count=2000
+2000+0 records in
+2000+0 records out
+2097152000 bytes (2,1 GB) copied, 26,1617 s, 80,2 MB/s
+[root@pihole ~]# dd if=/dev/zero of=file-xyz bs=1M count=2000
+2000+0 records in
+2000+0 records out
+2097152000 bytes (2,1 GB) copied, 23,308 s, 90,0 MB/s
+[root@pihole ~]# free -m
+            total        used        free      shared  buff/cache   available
+Mem:           3790         195         135           8        3459        3231
+Swap:          2047           1        2046
+[root@pihole ~]# echo 3 &gt; /proc/sys/vm/drop_caches
+[root@pihole ~]# free -m
+            total        used        free      shared  buff/cache   available
+Mem:           3790         186        2913           8         690        3349
+Swap:          2047           1        2046
+[root@pihole ~]# 
+</code></pre></li>
+
+<li><p>Giới hạn rw trong group demo1</p>
+
+<pre><code>[root@pihole demo1]# ls -l /dev/sda*
+brw-rw---- 1 root disk 8, 0 Jan  4 16:08 /dev/sda
+brw-rw---- 1 root disk 8, 1 Jan  4 16:08 /dev/sda1
+brw-rw---- 1 root disk 8, 2 Jan  4 16:08 /dev/sda2
+[root@pihole demo1]# echo &quot;8:0 5242880&quot; &gt; blkio.throttle.read_bps_device
+[root@pihole demo1]# echo 3 &gt; /proc/sys/vm/drop_caches
+[root@pihole demo1]# free -m
+            total        used        free      shared  buff/cache   available
+Mem:           3790         175        3511           8         103        3429
+Swap:          2047           1        2046
+[root@pihole demo1]# 
+</code></pre>
+
+<p><strong>Ở đây mình đã giới hạn read 5MB cho demo1</strong></p></li>
+
+<li><p>Kiểm tra:</p>
+
+<pre><code>[root@pihole ~]# cgexec -g blkio:demo1 dd if=file-abc of=/dev/null
+2363041+0 records in
+2363040+0 records out
+1209876480 bytes (1,2 GB) copied, 246,069 s, 4,9 MB/s
+[root@pihole ~]# 
+</code></pre></li>
+
+<li><p>Kết quả đúng như gì mong đợi phải không? <code>4,9 MB/s</code> so với ban đầu là <code>90,0 MB/s</code></p></li>
+</ul>
+
+<h3 id="ram-to-be-continue">Ram. To be continue &gt;&gt;&gt;</h3>
+
+              
+            </div>
+          </div>
+          <div id="post-footer" class="post-footer main-content-wrap">
+            
+              
+                
+                
+                  <div class="post-footer-tags">
+                    <span class="text-color-light text-small">TAGGED IN</span><br/>
+                    
+  <a class="tag tag--primary tag--small" href="https://minhkma.github.io/tags/cgroup/">Cgroup</a>
+
+  <a class="tag tag--primary tag--small" href="https://minhkma.github.io/tags/docker/">Docker</a>
+
+                  </div>
+                
+              
+            
+            <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://minhkma.github.io/2019/05/dns-anycast/" data-tooltip="Dns anycast">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://minhkma.github.io/2018/10/check-mk--write-your-own-check/" data-tooltip="Check MK – Write your own check">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/MinhKMA%25!%28EXTRA%20string=https://minhkma.github.io/2019/01/cgroup/%29">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/minhkma%25!%28EXTRA%20string=https://minhkma.github.io/2019/01/cgroup/%29">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+            
+              
+                <div id="disqus_thread">
+  <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+              
+            
+          </div>
+        </article>
+        <footer id="footer" class="main-content-wrap">
+  <span class="copyrights">
+    &copy; 2019 Minh Nguyen Van. All Rights Reserved
+  </span>
+</footer>
+
+      </div>
+      <div id="bottom-bar" class="post-bottom-bar" data-behavior="5">
+        <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://minhkma.github.io/2019/05/dns-anycast/" data-tooltip="Dns anycast">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://minhkma.github.io/2018/10/check-mk--write-your-own-check/" data-tooltip="Check MK – Write your own check">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/MinhKMA%25!%28EXTRA%20string=https://minhkma.github.io/2019/01/cgroup/%29">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/minhkma%25!%28EXTRA%20string=https://minhkma.github.io/2019/01/cgroup/%29">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+      </div>
+      <div id="share-options-bar" class="share-options-bar" data-behavior="5">
+  <i id="btn-close-shareoptions" class="fa fa-close"></i>
+  <ul class="share-options">
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://www.facebook.com/MinhKMA%25!%28EXTRA%20string=https%3A%2F%2Fminhkma.github.io%2F2019%2F01%2Fcgroup%2F%29">
+          <i class="fa fa-facebook-official"></i><span>Share on Facebook</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://twitter.com/minhkma%25!%28EXTRA%20string=https%3A%2F%2Fminhkma.github.io%2F2019%2F01%2Fcgroup%2F%29">
+          <i class="fa fa-twitter"></i><span>Share on Twitter</span>
+        </a>
+      </li>
+    
+  </ul>
+</div>
+<div id="share-options-mask" class="share-options-mask"></div>
+    </div>
+    
+    <div id="about">
+  <div id="about-card">
+    <div id="about-btn-close">
+      <i class="fa fa-remove"></i>
+    </div>
+    
+      <img id="about-card-picture" src="https://www.gravatar.com/avatar/5b04fcd56c9418190d3dc84726d479ba?s=110" alt="Author&#39;s picture" />
+    
+    <h4 id="about-card-name">Minh Nguyen Van</h4>
+    
+      <div id="about-card-bio">Không có một sự kiện nào trên đời là ngẫu nhiên, những thứ đang cho là ngẫu nhiên chỉ là những sự kiện ta chưa tìm ra được mô hình để biểu diễn quy luật của chúng</div>
+    
+    
+      <div id="about-card-job">
+        <i class="fa fa-briefcase"></i>
+        <br/>
+        Student
+      </div>
+    
+    
+      <div id="about-card-location">
+        <i class="fa fa-map-marker"></i>
+        <br/>
+        VietNam
+      </div>
+    
+  </div>
+</div>
+
+    <div id="algolia-search-modal" class="modal-container">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="close-button"><i class="fa fa-close"></i></span>
+      <a href="https://algolia.com" target="_blank" rel="noopener" class="searchby-algolia text-color-light link-unstyled">
+        <span class="searchby-algolia-text text-color-light text-small">by</span>
+        <img class="searchby-algolia-logo" src="https://www.algolia.com/static_assets/images/press/downloads/algolia-light.svg">
+      </a>
+      <i class="search-icon fa fa-search"></i>
+      <form id="algolia-search-form">
+        <input type="text" id="algolia-search-input" name="search"
+          class="form-control input--large search-input" placeholder="Search" />
+      </form>
+    </div>
+    <div class="modal-body">
+      <div class="no-result text-color-light text-center">no post found</div>
+      <div class="results">
+        
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="https://minhkma.github.io/2019/05/dns-anycast/">
+                <h3 class="media-heading">Dns anycast</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  May 5, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">DNS anycast Hi các bạn, vẫn là mình, mình vẫn là MinhKMA. Trong tiết trời độc lập 30&frasl;04 các bạn đi xuống biển. lên rừng thì mình vẫn đang ngồi trong phòng ngắm những cơn mưa tầm tã.Quay lại vấn đề chính, Phần DNS vẫn là một trong nhưng phần mình rất thích vọc vạch về nó. Mục đích của bài LAB là tạo ra một mô hình DNS anycast sử dụng Docker.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="https://minhkma.github.io/2019/01/cgroup/">
+                <h3 class="media-heading">Cgroup</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jan 1, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Chào các bạn, vẫn là tôi - MinhKMA. Tôi đã chạy docker được năm rồi nhưng mới chỉ dừng lại ở docker-compose. Lần này quay lại với nó với mục đích tiến xa hơn với công nghệ container này.
+Trong phần này chúng ta sẽ xem xét các Control Groups (cgroups), cung cấp một cơ chế để dễ dàng quản lý và giám sát tài nguyên hệ thống, bằng cách phân vùng những thứ như cpu time, system memory, disk và network bandwidth thành các nhóm, sau đó phân công nhiệm vụ cho các nhóm đó .</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="https://minhkma.github.io/2018/10/check-mk--write-your-own-check/">
+                <h3 class="media-heading">Check MK – Write your own check</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Oct 10, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Giám sát trạng thái các services trong OpenStack thông qua check_MK Môi trường:  CheckMK 1.5 OpenStack Queens Python3.5
+ Cách cài đặt python3.5  yum -y install https://centos7.iuscommunity.org/ius-release.rpm yum -y install python35u yum -y install python35u-pip yum install python35u-devel -y pip3.5 install python-openstackclient pip3.5 install python-neutronclient   Thực hiện trên phía client  Trước tiên ta kiểm tra xem thực mục đặt plugin phia client
+[root@check_mk plugins]# check_mk_agent | head &lt;&lt;&lt;check_mk&gt;&gt;&gt; Version: 1.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="https://minhkma.github.io/2018/10/exchanges-trong-rabbitmq/">
+                <h3 class="media-heading">Exchanges trong RabbitMQ</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Oct 10, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Các loại Exchange Direct Exchange Một direct exchange cung cấp các messages tới queues dựa trên một message routing key. Routing key là một thuộc thuộc tính của mesage được thêm vào message header từ producer. Routing key có thể được xem là một địa chỉ mà Exchange sử dụng để định tuyến các messages. A message goes to the queue(s) whose binding key exactly matches the routing key of the message.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="https://minhkma.github.io/2018/10/write-your-own-check-to-monitor-resources-in-openstack/">
+                <h3 class="media-heading">Write your own check to monitor resources in OpenStack</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Oct 10, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Montoring resources OpenStack Write your own check to monitor resources in OpenStack
+1. Prepare  Zabbix server:  Version: 3.0 OS: CentOS7 IP: 10.10.10.174  OpenStack Queens  OS: CentOS7 IP controller: 10.10.10.175 Two node compute and One node cinder   You can install via links reference:
+ Install OpenStack Queens
+ Install Zabbix server
+  Describe: The plugin installed in your controller node. It get metric from OpenStack and send to zabbix server via api.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="https://minhkma.github.io/2018/10/dns-ho%E1%BA%A1t-%C4%91%E1%BB%99ng-ra-sao/">
+                <h3 class="media-heading">DNS hoạt động ra sao?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Oct 10, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Lời mở đầu Tại thời điểm bây giờ các từ khóa như Cloud, docker, CICD, Machine Learning, Big Data &hellip; được nhắc đến nhiều trong thời đại công nghệ 4.0 này thì tôi lại đi viết một bài tìm hiểu về DNS. Trước đây tôi nghĩ DNS là những kiến thức căn bản mà hầu như ai cũng biết và chẳng có gì để viết về nó, nhưng gần đây tôi đã dành thời gian của mình để hệ thống lại những kiến thức căn bản.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="https://minhkma.github.io/2016/10/about-me/">
+                <h3 class="media-heading">About Me</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Oct 10, 2016
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather"> Sinh viên năm 4 Học viện Kỹ thuật Mật Mã Blog này của tôi viết về:  Những kiến thức mà tôi tìm hiểu được. Kỉ niệm bên cạnh người những bạn. Hành trình theo đuổi ước mơ.  Sở thích:  Uống beer &hellip;.   ThuocLaoPing và những kỉ niệm
+Telegram Bot
+ Sử dụng API telegram bot để create VMs trong KVM
+ </div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+      </div>
+    </div>
+    <div class="modal-footer">
+      <p class="results-count text-medium"
+         data-message-zero="no post found"
+         data-message-one="1 post found"
+         data-message-other="{n} posts found">
+         7 posts found
+      </p>
+    </div>
+  </div>
+</div>
+    
+  
+    
+    <div id="cover" style="background-image:url('https://minhkma.github.io/images/london.jpg');"></div>
+  
+
+
+    
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.7/js/jquery.fancybox.min.js" integrity="sha256-GEAnjcTqVP+vBp3SSc8bEDQqvWAZMiHyUSIorrWwH50=" crossorigin="anonymous"></script>
+
+
+<script src="https://minhkma.github.io/js/script-qi9wbxp2ya2j6p7wx1i6tgavftewndznf4v0hy2gvivk1rxgc3lm7njqb6bz.min.js"></script>
+
+
+<script lang="javascript">
+window.onload = updateMinWidth;
+window.onresize = updateMinWidth;
+document.getElementById("sidebar").addEventListener("transitionend", updateMinWidth);
+function updateMinWidth() {
+  var sidebar = document.getElementById("sidebar");
+  var main = document.getElementById("main");
+  main.style.minWidth = "";
+  var w1 = getComputedStyle(main).getPropertyValue("min-width");
+  var w2 = getComputedStyle(sidebar).getPropertyValue("width");
+  var w3 = getComputedStyle(sidebar).getPropertyValue("left");
+  main.style.minWidth = `calc(${w1} - ${w2} - ${w3})`;
+}
+</script>
+
+<script>
+$(document).ready(function() {
+  hljs.configure({ classPrefix: '', useBR: false });
+  $('pre.code-highlight > code, pre > code').each(function(i, block) {
+    if (!$(this).hasClass('codeblock')) {
+      $(this).addClass('codeblock');
+    }
+    hljs.highlightBlock(block);
+  });
+});
+</script>
+
+
+  
+    
+      <script>
+        var disqus_config = function () {
+          this.page.url = 'https:\/\/minhkma.github.io\/2019\/01\/cgroup\/';
+          
+            this.page.identifier = '\/2019\/01\/cgroup\/'
+          
+        };
+        (function() {
+          
+          
+          if (window.location.hostname == "localhost") {
+            return;
+          }
+          var d = document, s = d.createElement('script');
+          var disqus_shortname = 'minhkma';
+          s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+        })();
+      </script>
+    
+  
+
+
+
+
+    
+  </body>
+</html>
+

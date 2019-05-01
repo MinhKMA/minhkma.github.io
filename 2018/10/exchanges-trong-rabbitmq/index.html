@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Hugo 0.49.2 with theme Tranquilpeak 0.4.3-SNAPSHOT">
+<meta name="author" content="Minh Nguyen Van">
+<meta name="keywords" content="">
+<meta name="description" content="Các loại Exchange Direct Exchange Một direct exchange cung cấp các messages tới queues dựa trên một message routing key. Routing key là một thuộc thuộc tính của mesage được thêm vào message header từ producer. Routing key có thể được xem là một địa chỉ mà Exchange sử dụng để định tuyến các messages. A message goes to the queue(s) whose binding key exactly matches the routing key of the message.">
+
+
+<meta property="og:description" content="Các loại Exchange Direct Exchange Một direct exchange cung cấp các messages tới queues dựa trên một message routing key. Routing key là một thuộc thuộc tính của mesage được thêm vào message header từ producer. Routing key có thể được xem là một địa chỉ mà Exchange sử dụng để định tuyến các messages. A message goes to the queue(s) whose binding key exactly matches the routing key of the message.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Exchanges trong RabbitMQ">
+<meta name="twitter:title" content="Exchanges trong RabbitMQ">
+<meta property="og:url" content="https://minhkma.github.io/2018/10/exchanges-trong-rabbitmq/">
+<meta property="twitter:url" content="https://minhkma.github.io/2018/10/exchanges-trong-rabbitmq/">
+<meta property="og:site_name" content="Minh Nguyen Van">
+<meta property="og:description" content="Các loại Exchange Direct Exchange Một direct exchange cung cấp các messages tới queues dựa trên một message routing key. Routing key là một thuộc thuộc tính của mesage được thêm vào message header từ producer. Routing key có thể được xem là một địa chỉ mà Exchange sử dụng để định tuyến các messages. A message goes to the queue(s) whose binding key exactly matches the routing key of the message.">
+<meta name="twitter:description" content="Các loại Exchange Direct Exchange Một direct exchange cung cấp các messages tới queues dựa trên một message routing key. Routing key là một thuộc thuộc tính của mesage được thêm vào message header từ producer. Routing key có thể được xem là một địa chỉ mà Exchange sử dụng để định tuyến các messages. A message goes to the queue(s) whose binding key exactly matches the routing key of the message.">
+<meta property="og:locale" content="en-us">
+
+  
+    <meta property="article:published_time" content="2018-10-21T21:59:39">
+  
+  
+    <meta property="article:modified_time" content="2018-10-21T21:59:39">
+  
+  
+  
+    
+      <meta property="article:section" content="RabbitMQ">
+    
+  
+  
+    
+      <meta property="article:tag" content="RabbitMQ">
+    
+  
+
+
+<meta name="twitter:card" content="summary">
+
+  <meta name="twitter:site" content="@minhkma">
+
+
+  <meta name="twitter:creator" content="@minhkma">
+
+
+
+
+
+
+  <meta property="og:image" content="https://minhkma.github.io/img/RabbitMQ.png">
+  <meta property="twitter:image" content="https://minhkma.github.io/img/RabbitMQ.png">
+
+
+
+
+
+  <meta property="og:image" content="https://www.gravatar.com/avatar/5b04fcd56c9418190d3dc84726d479ba?s=640">
+  <meta property="twitter:image" content="https://www.gravatar.com/avatar/5b04fcd56c9418190d3dc84726d479ba?s=640">
+
+
+    <title>Exchanges trong RabbitMQ</title>
+
+    <link rel="icon" href="https://minhkma.github.io/favicon.png">
+    
+
+    
+
+    <link rel="canonical" href="https://minhkma.github.io/2018/10/exchanges-trong-rabbitmq/">
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/jquery.fancybox.min.css" integrity="sha256-vuXZ9LGmmwtjqFX1F+EKin1ThZMub58gKULUyf0qECk=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/helpers/jquery.fancybox-thumbs.min.css" integrity="sha256-SEa4XYAHihTcEP1f5gARTB2K26Uk8PsndQYHQC1f4jU=" crossorigin="anonymous" />
+    
+    
+    <link rel="stylesheet" href="https://minhkma.github.io/css/style-nnm2spxvve8onlujjlegkkytaehyadd4ksxc1hyzzq9a2wvtrgbljqyulomn.min.css" />
+    
+    
+
+    
+      
+    
+    
+  </head>
+
+  <body>
+    <div id="blog">
+      <header id="header" data-behavior="5">
+  <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+  <div class="header-title">
+    <a class="header-title-link" href="https://minhkma.github.io/">Minh Nguyen Van</a>
+  </div>
+  
+    
+      <a class="header-right-picture "
+         href="https://minhkma.github.io/#about">
+    
+    
+    
+      
+        <img class="header-picture" src="https://www.gravatar.com/avatar/5b04fcd56c9418190d3dc84726d479ba?s=90" alt="Author&#39;s picture" />
+      
+    
+    </a>
+  
+</header>
+
+      <nav id="sidebar" data-behavior="5">
+  <div class="sidebar-container">
+    
+      <div class="sidebar-profile">
+        <a href="https://minhkma.github.io/#about">
+          <img class="sidebar-profile-picture" src="https://www.gravatar.com/avatar/5b04fcd56c9418190d3dc84726d479ba?s=110" alt="Author&#39;s picture" />
+        </a>
+        <h4 class="sidebar-profile-name">Minh Nguyen Van</h4>
+        
+          <h5 class="sidebar-profile-bio">Không có một sự kiện nào trên đời là ngẫu nhiên, những thứ đang cho là ngẫu nhiên chỉ là những sự kiện ta chưa tìm ra được mô hình để biểu diễn quy luật của chúng</h5>
+        
+      </div>
+    
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://minhkma.github.io/">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+      
+      <span class="sidebar-button-desc">Home</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://minhkma.github.io/categories">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+      
+      <span class="sidebar-button-desc">Categories</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://minhkma.github.io/tags">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+      
+      <span class="sidebar-button-desc">Tags</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://minhkma.github.io/archives">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+      
+      <span class="sidebar-button-desc">Archives</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://minhkma.github.io/2016/10/about-me/">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+      
+      <span class="sidebar-button-desc">About</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.facebook.com/MinhKMA" target="_blank" rel="noopener">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-facebook"></i>
+      
+      <span class="sidebar-button-desc">Facebook</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://github.com/minhkma" target="_blank" rel="noopener">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+      
+      <span class="sidebar-button-desc">GitHub</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+
+    </ul>
+  </div>
+</nav>
+
+      
+
+      <div id="main" data-behavior="5"
+        class="
+               hasCoverMetaIn
+               ">
+        <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+          
+          
+            <div class="post-header main-content-wrap text-left">
+  
+    <h1 class="post-title" itemprop="headline">
+      Exchanges trong RabbitMQ
+    </h1>
+  
+  
+  <div class="postShorten-meta post-meta">
+    
+      <time itemprop="datePublished" datetime="2018-10-21T21:59:39&#43;07:00">
+        
+  October 21, 2018
+
+      </time>
+    
+    
+  
+  
+    <span>in</span>
+    
+      <a class="category-link" href="https://minhkma.github.io/categories/rabbitmq">RabbitMQ</a>
+    
+  
+
+  </div>
+
+</div>
+          
+          <div class="post-content markdown" itemprop="articleBody">
+            <div class="main-content-wrap">
+              
+
+<h1 id="các-loại-exchange">Các loại Exchange</h1>
+
+<h2 id="direct-exchange">Direct Exchange</h2>
+
+<p>Một direct exchange cung cấp các messages tới queues dựa trên một message routing key. Routing key là một thuộc thuộc tính của mesage được thêm vào message header từ producer. Routing key có thể được xem là một địa chỉ mà Exchange sử dụng để định tuyến các messages. <strong>A message goes to the queue(s) whose binding key exactly matches the routing key of the message.</strong></p>
+
+<p>Direct exchange được sử dụng trong trường hợp bạn muốn phân biệt các messages published cho cùng một exchange bằng cách sử dụng một chuỗi định danh đơn giản.</p>
+
+<p>Exchange mặc định của AMQP brokers phải cung cấp cho direct exchange là <code>amq.direct</code>.</p>
+
+<p><img src="https://i.imgur.com/2sjgr6H.png"></p>
+
+<ul>
+<li>SCENARIO 1
+
+<ul>
+<li>Exchange: pdf_events</li>
+<li>Queue A: create_pdf_queue</li>
+<li>Binding key between exchange (pdf_events) and Queue A (create_pdf_queue): pdf_create</li>
+</ul></li>
+
+<li><p>SCENARIO 2</p>
+
+<ul>
+<li>Exchange: pdf_events</li>
+<li>Queue B: pdf_log_queue</li>
+<li>Binding key between exchange (pdf_events) and Queue B (pdf_log_queue): pdf_log</li>
+</ul></li>
+
+<li><p>Ví dụ:</p>
+
+<p>Một message với routing key <code>pdf_log</code> được gửi từ exchange <code>pdf_events</code>. Message đó được định tuyến tới pdf_log_queue vì outing key (pdf_log) khớp với binding key (pdf_log).</p>
+
+<p>Nếu message routing key không khớp với binding key nào thì sẽ bị hủy bỏ.</p></li>
+</ul>
+
+<h2 id="default-exchange">Default exchange</h2>
+
+<p>Exchange mặc định là một pre-declared direct exchange không có định danh(tên) thương được biểu diễn bởi một chuỗi rỗng <code>&quot;&quot;</code>.</p>
+
+<p>Khi bạn sử dụng exchange mặc định, message của bạn được gửi đến queue có tên chính là routing key của message. Tất cả queue tự động được liên kết với exchange mặc định kèm với một routing key giống như tên của queue.</p>
+
+<h2 id="topic-exchange">Topic Exchange</h2>
+
+<p>Topic exchanges định tuyến các messages tới queues được trên đối chiếu, đối sánh ky tự (wildcard matches) giữa routing key và cái gì đó được gọi là mẫu định tuyến được chỉ định bởi queue binding. Messages được định tuyến tới một hoặc nhiều queues được trên một đối sánh giữa một routing key của message và this pattern.</p>
+
+<p>routing key phải là một danh sách của các từ(a list of words) phân cách bởi dấu chấm (.) ví dụ <code>agreements.us</code> và <code>agreements.eu.stockholm</code> trong trường hợp này xác định các thỏa thuận được thiết lập cho một công ty có văn phòng ở nhiều địa điểm khác nhau. routing patterns có thể chứa dấu hoa thị(&rdquo;<em>&rdquo;) để đối sánh một từ ở một vị trí cụ thể của routing key (ví dụ: một routing pattern của chuỗi &ldquo;agreements.</em>.<em>.b.</em>&rdquo; chỉ match routing keys ở từ đầu tiên là &ldquo;agreements&rdquo; và một từ thứ tứ là &ldquo;b&rdquo;). Ký tự thăng (#) cho biết match với zero hoặc nhiều từ hơn(ví dụ một routing pattern của &ldquo;agreements.eu.berlin.#&rdquo; matches với bất cứ routing keys bắt đầu với &ldquo;agreements.eu.berlin&rdquo;)</p>
+
+<p>consumers biểu diễn topic mà họ quan tâm như đăng kí để có một nguồn dữ liệu cho từng thẻ riêng biệt</p>
+
+<p>Consumers tạo ra một queue và thiết lập một binding với một với một mẫu định tuyến đã cho tới exchange. Tất cả message với một routing key khớp với routing pattern được định tuyến đến queue và ở đó đến khi consumers đến lấy message</p>
+
+<p>Mặc định của exchange AMQP brokers phải cung cấp cho  topic exchange là <code>amq.topic</code>.</p>
+
+<p><img src="https://i.imgur.com/ZlMqg0R.png"></p>
+
+<ul>
+<li><p>SCENARIO 1</p>
+
+<p>The image to the right show an example where consumer A is interested in all the agreements in Berlin.</p>
+
+<ul>
+<li>Exchange: agreements</li>
+<li>Queue A: berlin_agreements</li>
+<li>Routing pattern between exchange (agreements) and Queue A (berlin_agreements): agreements.eu.berlin.#</li>
+<li>Example of message routing key that matches: agreements.eu.berlin and agreements.eu.berlin.headstore</li>
+</ul></li>
+
+<li><p>SCENARIO 2
+Consumer B is interested in all the agreements.</p>
+
+<ul>
+<li>Exchange: agreements</li>
+<li>Queue B: all_agreements</li>
+<li>Routing pattern between exchange (agreements) and Queue B (all_agreements): agreements.#</li>
+<li>Example of message routing key that matches: agreements.eu.berlin and agreements.us
+￼</li>
+</ul></li>
+
+<li><p>SCENARIO 3
+Consumer C is interested in all agreements for European head stores.</p>
+
+<ul>
+<li>Exchange: agreements</li>
+<li>Queue C: headstore_agreements</li>
+<li>Routing pattern between exchange (agreements) and Queue C (headstore_agreements): agreements.eu.*.headstore</li>
+<li>Example of message routing keys that will match: agreements.eu.berlin.headstore and agreements.eu.stockholm.headstore</li>
+</ul></li>
+</ul>
+
+<p>Ví dụ:</p>
+
+<p>Một message có routing key <code>agreements.eu.berlin</code> được gửi tới exchange agreements. Message được đính tuyến đến queue <code>berlin_agreements</code> bởi vì routing pattern của &ldquo;agreements.eu.berlin.#&rdquo; match với bất kì routing key nào bắt đầu là &ldquo;agreements.eu.berlin&rdquo;. Tin nhắn cũng được định tuyến đến queue <code>all_agreements</code> vì routing key (agreements.eu.berlin) match routing pattern (agreements.#)</p>
+
+<h2 id="fanout-exchange">Fanout Exchange</h2>
+
+<p>Fanout copy và định tuyến một mesage nhận được tới tất cả queue được ràng buộc với nó.</p>
+
+<p>Fanout Exchange được dùng trong trường hợp khi một hoặc nhiều thông điệp được gửi tới một hoặc nhiều queues với nhiều consumers có thể xử lý cùng một message the o nhiều cách khác nhau.</p>
+
+<p>Mặc định là &ldquo;amq.fanout&rdquo;.</p>
+
+<p><img src="https://i.imgur.com/Zq7asE9.png"></p>
+
+<ul>
+<li>SCENARIO 1
+
+<ul>
+<li>Exchange: sport_news</li>
+<li>Queue A: Mobile client queue A</li>
+<li>Binding: Binging between the exchange (sport_news) and Queue A (Mobile client queue A)</li>
+</ul></li>
+</ul>
+
+<p>Ví dụ:</p>
+
+<p>Một mesage được gửi đến exchange <code>sport_news</code>. Message đó được định tuyến tới tất cả các queues (Queue A, Queue B, Queue C)</p>
+
+              
+            </div>
+          </div>
+          <div id="post-footer" class="post-footer main-content-wrap">
+            
+              
+                
+                
+                  <div class="post-footer-tags">
+                    <span class="text-color-light text-small">TAGGED IN</span><br/>
+                    
+  <a class="tag tag--primary tag--small" href="https://minhkma.github.io/tags/rabbitmq/">RabbitMQ</a>
+
+                  </div>
+                
+              
+            
+            <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://minhkma.github.io/2018/10/check-mk--write-your-own-check/" data-tooltip="Check MK – Write your own check">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://minhkma.github.io/2018/10/write-your-own-check-to-monitor-resources-in-openstack/" data-tooltip="Write your own check to monitor resources in OpenStack">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/MinhKMA%25!%28EXTRA%20string=https://minhkma.github.io/2018/10/exchanges-trong-rabbitmq/%29">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/minhkma%25!%28EXTRA%20string=https://minhkma.github.io/2018/10/exchanges-trong-rabbitmq/%29">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+            
+              
+                <div id="disqus_thread">
+  <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+              
+            
+          </div>
+        </article>
+        <footer id="footer" class="main-content-wrap">
+  <span class="copyrights">
+    &copy; 2019 Minh Nguyen Van. All Rights Reserved
+  </span>
+</footer>
+
+      </div>
+      <div id="bottom-bar" class="post-bottom-bar" data-behavior="5">
+        <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://minhkma.github.io/2018/10/check-mk--write-your-own-check/" data-tooltip="Check MK – Write your own check">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://minhkma.github.io/2018/10/write-your-own-check-to-monitor-resources-in-openstack/" data-tooltip="Write your own check to monitor resources in OpenStack">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/MinhKMA%25!%28EXTRA%20string=https://minhkma.github.io/2018/10/exchanges-trong-rabbitmq/%29">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/minhkma%25!%28EXTRA%20string=https://minhkma.github.io/2018/10/exchanges-trong-rabbitmq/%29">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+      </div>
+      <div id="share-options-bar" class="share-options-bar" data-behavior="5">
+  <i id="btn-close-shareoptions" class="fa fa-close"></i>
+  <ul class="share-options">
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://www.facebook.com/MinhKMA%25!%28EXTRA%20string=https%3A%2F%2Fminhkma.github.io%2F2018%2F10%2Fexchanges-trong-rabbitmq%2F%29">
+          <i class="fa fa-facebook-official"></i><span>Share on Facebook</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://twitter.com/minhkma%25!%28EXTRA%20string=https%3A%2F%2Fminhkma.github.io%2F2018%2F10%2Fexchanges-trong-rabbitmq%2F%29">
+          <i class="fa fa-twitter"></i><span>Share on Twitter</span>
+        </a>
+      </li>
+    
+  </ul>
+</div>
+<div id="share-options-mask" class="share-options-mask"></div>
+    </div>
+    
+    <div id="about">
+  <div id="about-card">
+    <div id="about-btn-close">
+      <i class="fa fa-remove"></i>
+    </div>
+    
+      <img id="about-card-picture" src="https://www.gravatar.com/avatar/5b04fcd56c9418190d3dc84726d479ba?s=110" alt="Author&#39;s picture" />
+    
+    <h4 id="about-card-name">Minh Nguyen Van</h4>
+    
+      <div id="about-card-bio">Không có một sự kiện nào trên đời là ngẫu nhiên, những thứ đang cho là ngẫu nhiên chỉ là những sự kiện ta chưa tìm ra được mô hình để biểu diễn quy luật của chúng</div>
+    
+    
+      <div id="about-card-job">
+        <i class="fa fa-briefcase"></i>
+        <br/>
+        Student
+      </div>
+    
+    
+      <div id="about-card-location">
+        <i class="fa fa-map-marker"></i>
+        <br/>
+        VietNam
+      </div>
+    
+  </div>
+</div>
+
+    <div id="algolia-search-modal" class="modal-container">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="close-button"><i class="fa fa-close"></i></span>
+      <a href="https://algolia.com" target="_blank" rel="noopener" class="searchby-algolia text-color-light link-unstyled">
+        <span class="searchby-algolia-text text-color-light text-small">by</span>
+        <img class="searchby-algolia-logo" src="https://www.algolia.com/static_assets/images/press/downloads/algolia-light.svg">
+      </a>
+      <i class="search-icon fa fa-search"></i>
+      <form id="algolia-search-form">
+        <input type="text" id="algolia-search-input" name="search"
+          class="form-control input--large search-input" placeholder="Search" />
+      </form>
+    </div>
+    <div class="modal-body">
+      <div class="no-result text-color-light text-center">no post found</div>
+      <div class="results">
+        
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="https://minhkma.github.io/2019/05/dns-anycast/">
+                <h3 class="media-heading">Dns anycast</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  May 5, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">DNS anycast Hi các bạn, vẫn là mình, mình vẫn là MinhKMA. Trong tiết trời độc lập 30&frasl;04 các bạn đi xuống biển. lên rừng thì mình vẫn đang ngồi trong phòng ngắm những cơn mưa tầm tã.Quay lại vấn đề chính, Phần DNS vẫn là một trong nhưng phần mình rất thích vọc vạch về nó. Mục đích của bài LAB là tạo ra một mô hình DNS anycast sử dụng Docker.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="https://minhkma.github.io/2019/01/cgroup/">
+                <h3 class="media-heading">Cgroup</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jan 1, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Chào các bạn, vẫn là tôi - MinhKMA. Tôi đã chạy docker được năm rồi nhưng mới chỉ dừng lại ở docker-compose. Lần này quay lại với nó với mục đích tiến xa hơn với công nghệ container này.
+Trong phần này chúng ta sẽ xem xét các Control Groups (cgroups), cung cấp một cơ chế để dễ dàng quản lý và giám sát tài nguyên hệ thống, bằng cách phân vùng những thứ như cpu time, system memory, disk và network bandwidth thành các nhóm, sau đó phân công nhiệm vụ cho các nhóm đó .</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="https://minhkma.github.io/2018/10/check-mk--write-your-own-check/">
+                <h3 class="media-heading">Check MK – Write your own check</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Oct 10, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Giám sát trạng thái các services trong OpenStack thông qua check_MK Môi trường:  CheckMK 1.5 OpenStack Queens Python3.5
+ Cách cài đặt python3.5  yum -y install https://centos7.iuscommunity.org/ius-release.rpm yum -y install python35u yum -y install python35u-pip yum install python35u-devel -y pip3.5 install python-openstackclient pip3.5 install python-neutronclient   Thực hiện trên phía client  Trước tiên ta kiểm tra xem thực mục đặt plugin phia client
+[root@check_mk plugins]# check_mk_agent | head &lt;&lt;&lt;check_mk&gt;&gt;&gt; Version: 1.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="https://minhkma.github.io/2018/10/exchanges-trong-rabbitmq/">
+                <h3 class="media-heading">Exchanges trong RabbitMQ</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Oct 10, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Các loại Exchange Direct Exchange Một direct exchange cung cấp các messages tới queues dựa trên một message routing key. Routing key là một thuộc thuộc tính của mesage được thêm vào message header từ producer. Routing key có thể được xem là một địa chỉ mà Exchange sử dụng để định tuyến các messages. A message goes to the queue(s) whose binding key exactly matches the routing key of the message.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="https://minhkma.github.io/2018/10/write-your-own-check-to-monitor-resources-in-openstack/">
+                <h3 class="media-heading">Write your own check to monitor resources in OpenStack</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Oct 10, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Montoring resources OpenStack Write your own check to monitor resources in OpenStack
+1. Prepare  Zabbix server:  Version: 3.0 OS: CentOS7 IP: 10.10.10.174  OpenStack Queens  OS: CentOS7 IP controller: 10.10.10.175 Two node compute and One node cinder   You can install via links reference:
+ Install OpenStack Queens
+ Install Zabbix server
+  Describe: The plugin installed in your controller node. It get metric from OpenStack and send to zabbix server via api.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="https://minhkma.github.io/2018/10/dns-ho%E1%BA%A1t-%C4%91%E1%BB%99ng-ra-sao/">
+                <h3 class="media-heading">DNS hoạt động ra sao?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Oct 10, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Lời mở đầu Tại thời điểm bây giờ các từ khóa như Cloud, docker, CICD, Machine Learning, Big Data &hellip; được nhắc đến nhiều trong thời đại công nghệ 4.0 này thì tôi lại đi viết một bài tìm hiểu về DNS. Trước đây tôi nghĩ DNS là những kiến thức căn bản mà hầu như ai cũng biết và chẳng có gì để viết về nó, nhưng gần đây tôi đã dành thời gian của mình để hệ thống lại những kiến thức căn bản.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="https://minhkma.github.io/2016/10/about-me/">
+                <h3 class="media-heading">About Me</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Oct 10, 2016
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather"> Sinh viên năm 4 Học viện Kỹ thuật Mật Mã Blog này của tôi viết về:  Những kiến thức mà tôi tìm hiểu được. Kỉ niệm bên cạnh người những bạn. Hành trình theo đuổi ước mơ.  Sở thích:  Uống beer &hellip;.   ThuocLaoPing và những kỉ niệm
+Telegram Bot
+ Sử dụng API telegram bot để create VMs trong KVM
+ </div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+      </div>
+    </div>
+    <div class="modal-footer">
+      <p class="results-count text-medium"
+         data-message-zero="no post found"
+         data-message-one="1 post found"
+         data-message-other="{n} posts found">
+         7 posts found
+      </p>
+    </div>
+  </div>
+</div>
+    
+  
+    
+    <div id="cover" style="background-image:url('https://minhkma.github.io/images/london.jpg');"></div>
+  
+
+
+    
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.7/js/jquery.fancybox.min.js" integrity="sha256-GEAnjcTqVP+vBp3SSc8bEDQqvWAZMiHyUSIorrWwH50=" crossorigin="anonymous"></script>
+
+
+<script src="https://minhkma.github.io/js/script-qi9wbxp2ya2j6p7wx1i6tgavftewndznf4v0hy2gvivk1rxgc3lm7njqb6bz.min.js"></script>
+
+
+<script lang="javascript">
+window.onload = updateMinWidth;
+window.onresize = updateMinWidth;
+document.getElementById("sidebar").addEventListener("transitionend", updateMinWidth);
+function updateMinWidth() {
+  var sidebar = document.getElementById("sidebar");
+  var main = document.getElementById("main");
+  main.style.minWidth = "";
+  var w1 = getComputedStyle(main).getPropertyValue("min-width");
+  var w2 = getComputedStyle(sidebar).getPropertyValue("width");
+  var w3 = getComputedStyle(sidebar).getPropertyValue("left");
+  main.style.minWidth = `calc(${w1} - ${w2} - ${w3})`;
+}
+</script>
+
+<script>
+$(document).ready(function() {
+  hljs.configure({ classPrefix: '', useBR: false });
+  $('pre.code-highlight > code, pre > code').each(function(i, block) {
+    if (!$(this).hasClass('codeblock')) {
+      $(this).addClass('codeblock');
+    }
+    hljs.highlightBlock(block);
+  });
+});
+</script>
+
+
+  
+    
+      <script>
+        var disqus_config = function () {
+          this.page.url = 'https:\/\/minhkma.github.io\/2018\/10\/exchanges-trong-rabbitmq\/';
+          
+            this.page.identifier = '\/2018\/10\/exchanges-trong-rabbitmq\/'
+          
+        };
+        (function() {
+          
+          
+          if (window.location.hostname == "localhost") {
+            return;
+          }
+          var d = document, s = d.createElement('script');
+          var disqus_shortname = 'minhkma';
+          s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+        })();
+      </script>
+    
+  
+
+
+
+
+    
+  </body>
+</html>
+

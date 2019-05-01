@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Dns on Minh Nguyen Van</title>
+    <link>https://minhkma.github.io/tags/dns/</link>
+    <description>Recent content in Dns on Minh Nguyen Van</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 01 May 2019 16:11:38 +0700</lastBuildDate>
+    
+	<atom:link href="https://minhkma.github.io/tags/dns/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Dns anycast</title>
+      <link>https://minhkma.github.io/2019/05/dns-anycast/</link>
+      <pubDate>Wed, 01 May 2019 16:11:38 +0700</pubDate>
+      
+      <guid>https://minhkma.github.io/2019/05/dns-anycast/</guid>
+      <description>DNS anycast Hi các bạn, vẫn là mình, mình vẫn là MinhKMA. Trong tiết trời độc lập 30&amp;frasl;04 các bạn đi xuống biển. lên rừng thì mình vẫn đang ngồi trong phòng ngắm những cơn mưa tầm tã.Quay lại vấn đề chính, Phần DNS vẫn là một trong nhưng phần mình rất thích vọc vạch về nó. Mục đích của bài LAB là tạo ra một mô hình DNS anycast sử dụng Docker.</description>
+    </item>
+    
+    <item>
+      <title>DNS hoạt động ra sao?</title>
+      <link>https://minhkma.github.io/2018/10/dns-ho%E1%BA%A1t-%C4%91%E1%BB%99ng-ra-sao/</link>
+      <pubDate>Tue, 02 Oct 2018 21:29:33 +0700</pubDate>
+      
+      <guid>https://minhkma.github.io/2018/10/dns-ho%E1%BA%A1t-%C4%91%E1%BB%99ng-ra-sao/</guid>
+      <description>Lời mở đầu Tại thời điểm bây giờ các từ khóa như Cloud, docker, CICD, Machine Learning, Big Data &amp;hellip; được nhắc đến nhiều trong thời đại công nghệ 4.0 này thì tôi lại đi viết một bài tìm hiểu về DNS. Trước đây tôi nghĩ DNS là những kiến thức căn bản mà hầu như ai cũng biết và chẳng có gì để viết về nó, nhưng gần đây tôi đã dành thời gian của mình để hệ thống lại những kiến thức căn bản.</description>
+    </item>
+    
+  </channel>
+</rss>
